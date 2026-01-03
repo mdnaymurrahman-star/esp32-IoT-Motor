@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My-Motor</title>
+
+<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+
+<style>
+body {
+  background:#111;
+  color:white;
+  font-family:Arial;
+  text-align:center;
+  margin:0;
+}
+
+h2 { margin:15px 0; }
+
+/* ESP STATUS */
+.status {
+  width:16px;
+  height:16px;
+  border-radius:50%;
+  display:inline-block;
+  background:red;
+}
+
+/* BUTTONS */
+.btn {
+  width:150px;
+  height:150px;
+  border-radius:50%;
+  border:none;
+  font-size:22px;
+  font-weight:bold;
+  color:white;
+  margin:15px;
+}
+
+.green { background:#00b300; }
+.redbtn { background:#cc0000; }
+
+.green:active { background:#006600; }
+.redbtn:active { background:#800000; }
+
+/* INPUT INDICATORS */
+.indicator {
+  width:90%;
+  max-width:360px;
+  margin:14px auto;
+  padding:20px;
+  font-size:22px;
+  border-radius:14px;
+  background:#333;
+}
+
+.high { background:#b30000; }
+.low  { background:#006600; }
+.wait { background:#444; }
+</style>
+</head>
+
+<body>
+
+<h2>My-Motor</h2>
+
+ESP Status :
+<span id="esp" class="status"></span>
+
+<br><br>
+
+<button class="btn green"
+ontouchstart="send('esp32/relay1')"
+onmousedown="send('esp32/relay1')">
+START
+</button>
+
+<button class="btn redbtn"
+ontouchstart="send('esp32/relay2')"
+onmousedown="send('esp32/relay2')">
+STOP
+</button>
+
+<div id="in1" class="indicator wait">Input 1 : WAITING...</div>
+<div id="in2" class="indicator wait">Input 2 : WAITING...</div>
+<div id="in3" class="indicator wait">Input 3 : WAITING...</div>
+
+<script>
+const client = mqtt.connect("wss://broker.hivemq.com:8884/mqtt");
+
+client.on("connect", () => {
+  document.getElementById("esp").style.background = "lime";
+
+  client.subscribe("esp32/input1");
+  client.subscribe("esp32/input2");
+  client.subscribe("esp32/input3");
+  client.subscribe("esp32/status");
+});
+
+client.on("close", () => {
+  document.getElementById("esp").style.background = "red";
+});
+
+client.on("message", (topic, message) => {
+  const msg = message.toString();
+
+  if (topic === "esp32/status") {
+    document.getElementById("esp").style.background =
+      msg === "ONLINE" ? "lime" : "red";
+  }
+
+  if (topic.startsWith("esp32/input")) {
+    const num = topic.slice(-1);
+    const el = document.getElementById("in" + num);
+
+    if (msg === "HIGH") {
+      el.className = "indicator high";
+      el.innerHTML = `Input ${num} : HIGH`;
+    } else if (msg === "LOW") {
+      el.className = "indicator low";
+      el.innerHTML = `Input ${num} : LOW`;
+    }
+  }
+});
+
+function send(topic) {
+  client.publish(topic, "ON");
+}
+</script>
+
+</body>
+</html>
