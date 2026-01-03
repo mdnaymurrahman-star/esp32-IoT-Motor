@@ -28,11 +28,11 @@ h2 { margin:15px 0; }
 
 /* BUTTONS */
 .btn {
-  width:150px;
-  height:150px;
+  width:120px;      /* ছোট করা হয়েছে */
+  height:120px;     /* ছোট করা হয়েছে */
   border-radius:50%;
   border:none;
-  font-size:22px;
+  font-size:20px;
   font-weight:bold;
   color:white;
   margin:15px;
@@ -55,9 +55,9 @@ h2 { margin:15px 0; }
   background:#333;
 }
 
-.high { background:#b30000; }
-.low  { background:#006600; }
-.wait { background:#444; }
+.high { background:#b30000; }   /* লাল */
+.low  { background:#006600; }   /* সবুজ */
+.wait { background:#444; }      /* ধূসর */
 </style>
 </head>
 
@@ -83,8 +83,8 @@ STOP
 </button>
 
 <div id="in1" class="indicator wait">সুরক্ষা ব্যাবস্থা : WAITING...</div>
-<div id="in2" class="indicator wait">মটর চালু : WAITING...</div>
-<div id="in3" class="indicator wait">পানি উঠা : WAITING...</div>
+<div id="in2" class="indicator wait">মটর স্টেট : WAITING...</div>
+<div id="in3" class="indicator wait">পানি স্টেট : WAITING...</div>
 
 <script>
 const client = mqtt.connect("wss://broker.hivemq.com:8884/mqtt");
@@ -114,12 +114,32 @@ client.on("message", (topic, message) => {
     const num = topic.slice(-1);
     const el = document.getElementById("in" + num);
 
-    if (msg === "HIGH") {
-      el.className = "ঠিক নাই";
-      el.innerHTML = `Input ${num} : HIGH`;
-    } else if (msg === "LOW") {
-      el.className = "ঠিক আছে";
-      el.innerHTML = `Input ${num} : LOW`;
+    if (num=="1") {
+      if(msg==="HIGH"){
+        el.className = "indicator high";
+        el.innerHTML = "মোটর চালু করার জন্য প্রস্তুত না";
+      } else {
+        el.className = "indicator low";
+        el.innerHTML = "মোটর চালু করার জন্য প্রস্তুত";
+      }
+    }
+    if (num=="2") {
+      if(msg==="HIGH"){
+        el.className = "indicator high";
+        el.innerHTML = "মোটর চালু না";
+      } else {
+        el.className = "indicator low";
+        el.innerHTML = "মোটর চালু";
+      }
+    }
+    if (num=="3") {
+      if(msg==="HIGH"){
+        el.className = "indicator high";
+        el.innerHTML = "পানি উঠতেছে না";
+      } else {
+        el.className = "indicator low";
+        el.innerHTML = "পানি উঠতেছে";
+      }
     }
   }
 });
@@ -131,3 +151,4 @@ function send(topic) {
 
 </body>
 </html>
+
