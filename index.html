@@ -82,9 +82,9 @@ onmousedown="send('esp32/relay2')">
 STOP
 </button>
 
-<div id="in1" class="indicator wait">Input 1 : WAITING...</div>
-<div id="in2" class="indicator wait">Input 2 : WAITING...</div>
-<div id="in3" class="indicator wait">Input 3 : WAITING...</div>
+<div id="in1" class="indicator wait">সুরক্ষা ব্যাবস্থা : WAITING...</div>
+<div id="in2" class="indicator wait">মটর চালু : WAITING...</div>
+<div id="in3" class="indicator wait">পানি উঠা : WAITING...</div>
 
 <script>
 const client = mqtt.connect("wss://broker.hivemq.com:8884/mqtt");
@@ -115,10 +115,10 @@ client.on("message", (topic, message) => {
     const el = document.getElementById("in" + num);
 
     if (msg === "HIGH") {
-      el.className = "indicator high";
+      el.className = "ঠিক নাই";
       el.innerHTML = `Input ${num} : HIGH`;
     } else if (msg === "LOW") {
-      el.className = "indicator low";
+      el.className = "ঠিক আছে";
       el.innerHTML = `Input ${num} : LOW`;
     }
   }
